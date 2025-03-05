@@ -8,7 +8,7 @@ LIBS="`pkg-config --libs raylib` -lm -ldl -lpthread"
 clang $CFLAGS -o f_visualizer main.c $LIBS
 
 # Windows Cross-Compilation
-x86_64-w64-mingw32-gcc -o f_visualizer.exe main.c \
+x86_64-w64-mingw32-gcc -o f_visualizer.exe frequency_visualizer.c \
     -I/mnt/c/raylib/include \
     -L/mnt/c/raylib/lib \
     -lraylib -lopengl32 -lgdi32 -lwinmm -mwindows
