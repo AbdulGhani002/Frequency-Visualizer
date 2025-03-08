@@ -7,22 +7,18 @@
 
 #define ARRAY_LENGTH(xs) (sizeof(xs)/sizeof(xs[0]))
 
-int16_t global_frames[4096] = {0}; // Store audio as int16_t (signed 16-bit PCM)
+int16_t global_frames[4096] = {0}; // Store audio as int16_t (signed 16-bit PCM). Stores audio samples
 
 // uint32_t global_frames[2048] = NULL;
 
-size_t global_frames_count = 0; // Stores number of valid audio samples
+size_t global_frames_count = 0; // Store number of valid audio samples
 
 void callback(void* bufferData, unsigned int frames) {
-    // This function is automatically called by Raylib when new audio frames are available
-    // bufferData is a pointer to the audio data (void* means a generic pointer that can point to any type of data).
-    // frames is the number of audio frames in the buffer
     if (frames * 2 > ARRAY_LENGTH(global_frames)) {
-    	// To avoid buffer overflow we are limiting the number of frames copied
         frames = ARRAY_LENGTH(global_frames) / 2;
     }
 
-    memcpy(global_frames, bufferData, frames * sizeof(int16_t) * 2); // Copy stereo audio. This copies audio buffer into global_frames. Since the audio is stereo (left + right), each frame has 2 samples so we are multipling 2 by number of frames
+    memcpy(global_frames, bufferData, frames * sizeof(int16_t) * 2); // Copy stereo audio
     global_frames_count = frames * 2; // Total number of samples (left + right)
     // (void) bufferData;
 
@@ -32,7 +28,7 @@ void callback(void* bufferData, unsigned int frames) {
 }
 
 int main(void) {
-    freopen("output.log", "w", stdout); // Redirects stdout to file named output.log. So all printf and other errors will be stored in that file because I'm using WSL and it cant use windows audio card so to run this code I develop it in WSL and then compiles it in windows and then run it in windows and then my WSL terminal cant capture the output of printf statements and any error occured
+    freopen("output.log", "w", stdout);
     InitWindow(800, 600, "Frequency Visualizer");
     SetTargetFPS(90);
     InitAudioDevice();
@@ -92,10 +88,9 @@ int main(void) {
         int height = GetRenderHeight(); // Returns height of screen
         
         if (global_frames_count > 0) {
-            float cell_width = (float) width / (global_frames_count / 2); // Calculating width of each visulaized sample. Using half because of stereo channels
+            float cell_width = (float) width / (global_frames_count / 2); // Use half because of stereo channels
             
             for (size_t i = 0; i < global_frames_count; i += 2) { // Step by 2 to account for stereo
-            // Extracting left and right samples and normalizing the samples from 1 to -1.
                 int16_t left_sample = global_frames[i];  // Left channel
                 int16_t right_sample = global_frames[i + 1]; // Right channel
                 
@@ -104,10 +99,10 @@ int main(void) {
                 float right_t = (float) right_sample / (float) INT16_MAX;
 
                 // Draw Left channel (upper part)
-                DrawRectangle(i/2 * cell_width, height / 2 - (height / 2 * left_t), cell_width, height / 2 * left_t, RED); // Red bar represents the left channel (upper half part of screen)
+                DrawRectangle(i/2 * cell_width, height / 2 - (height / 2 * left_t), cell_width, height / 2 * left_t, RED);
 
                 // Draw Right channel (lower part)
-                DrawRectangle(i/2 * cell_width, height / 2, cell_width, height / 2 * right_t, BLUE); // Blue bar represnets the right side of channel (lower part of screen)
+                DrawRectangle(i/2 * cell_width, height / 2, cell_width, height / 2 * right_t, BLUE);
             }
         }
 
